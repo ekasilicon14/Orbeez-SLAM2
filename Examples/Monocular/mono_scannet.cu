@@ -119,8 +119,8 @@ int main(int argc, char **argv)
 
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM(trajString+".txt");  // rpj only
-    SLAM.SaveKeyFrameTrajectoryNGP(trajString+".json"); // rpj (+ pht if train extrinsics) 
-    SLAM.SaveSnapShot(snapString);
+    // SLAM.SaveKeyFrameTrajectoryNGP(trajString+".json"); // rpj (+ pht if train extrinsics) 
+    // SLAM.SaveSnapShot(snapString);
 
     int pid = fork();
     if (pid < 0)

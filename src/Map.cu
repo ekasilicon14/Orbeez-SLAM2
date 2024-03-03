@@ -61,7 +61,7 @@ namespace ORBEEZ
 
 Map::Map(const string &strSettingPath, const string &strSlamTransform, const bool bTrainCameraWithPhotometric):mnMaxKFid(0), mnBigChangeIdx(0), mbDataIsReady(false)
 {
-    mpTestbed = std::make_shared<ngp::Testbed>(ngp::ETestbedMode::NerfSlam);
+    mpTestbed = std::make_shared<ngp::Testbed>(ngp::ETestbedMode::NerfSLAM);
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
 
     // Must exist
@@ -185,8 +185,26 @@ bool Map::frame()
             ref_map_points.push_back(ref_map_point);
         }
 
-        mpTestbed->add_sparse_point_cloud(map_points, ref_map_points);
+        std::array<float, 3> arr_zero;
+        arr_zero.fill(0);
+        std::vector<std::array<float, 3>> map_points_t;
+        map_points_t.resize(map_points.size(), arr_zero);
+        std::vector<std::array<float, 3>> ref_map_points_t;
+        ref_map_points_t.resize(ref_map_points.size(), arr_zero);
 
+         for(int i = 0; i < map_points.size(); i++){
+            map_points_t[i][0] = map_points[i][0];
+            map_points_t[i][1] = map_points[i][1];
+            map_points_t[i][2] = map_points[i][2];
+        }
+
+        for(int i = 0; i < ref_map_points.size(); i++){
+            ref_map_points_t[i][0] = ref_map_points[i][0];
+            ref_map_points_t[i][1] = ref_map_points[i][1];
+            ref_map_points_t[i][2] = ref_map_points[i][2];
+        }
+
+        mpTestbed->add_sparse_point_cloud(map_points_t, ref_map_points_t);
         // train and render
         bool value = mpTestbed->frame();
 
@@ -199,11 +217,12 @@ bool Map::frame()
         return false;
 }
 
-Eigen::Matrix<float, 3, 4> Map::KeyFrameWorldPoseToNGPFormat(const Eigen::Matrix<float, 3, 4>& slam_matrix) const
+tcnn::mat4x3 Map::KeyFrameWorldPoseToNGPFormat(const tcnn::mat4x3& slam_matrix) const
 {
-    return mpTestbed->m_nerf.training.dataset.slam_matrix_to_ngp(slam_matrix);
+    return mpTestbed->m_nerf.training.dataset.openGL_matrix_to_ngp(slam_matrix);
 }
 
+/*
 Eigen::Matrix<float, 3, 4> Map::KeyFrameNGPFormatToWorldPose(const Eigen::Matrix<float, 3, 4>& ngp_matrix) const
 {
     return mpTestbed->m_nerf.training.dataset.ngp_matrix_to_slam(ngp_matrix);
@@ -213,6 +232,7 @@ Eigen::Matrix<float, 3, 4> Map::PoseWithPhotometric(int index) const
 {
     return KeyFrameNGPFormatToWorldPose(mpTestbed->m_nerf.training.transforms[index].start);
 }
+*/
 
 void Map::AddKeyFrame(KeyFrame *pKF)
 {
@@ -268,7 +288,9 @@ void Map::AddKeyFrame(KeyFrame *pKF)
         // instant-ngp may release the image memory. Therefore, clone the image.
         rgba = color_image.clone();
     }
-    else{
+    else if (color_image.channels() == 1){
+        cvtColor(color_image, rgba, CV_GRAY2RGBA);
+    } else{
         throw std::runtime_error("incorrect image format");
     }
 
@@ -291,17 +313,19 @@ void Map::AddKeyFrame(KeyFrame *pKF)
     //     memcpy(depth, depth_image.data, sizeof(uint8_t) * depth_image.rows * depth_image.cols * depth_image.channels());
     // }
 
-    std::tuple<ngp::TrainingXForm*,int> t = mpTestbed->add_training_image(frame_config, img, depth);
-    ngp::TrainingXForm *pXform = std::get<0>(t);
-    int index = std::get<1>(t);
+    if(count %1==0)
+        mpTestbed->add_training_image(frame_config, img, depth, nullptr, nullptr);
 
-    pKF->SetNerfXformPointer(pXform, index);
+    // ngp::TrainingXForm *pXform = std::get<0>(t);
+    // int index = std::get<1>(t);
+
+    // pKF->SetNerfXformPointer(pXform, index);
 }
 
 void Map::update_transformsGPU()
 {
     unique_lock<mutex> lock(mMutexMap);
-    mpTestbed->update_camera(mpTestbed->m_training_stream);
+    mpTestbed->update_camera(mpTestbed->m_stream.get());
 }
 
 bool Map::NerfCameraIsUpdated()
@@ -309,7 +333,7 @@ bool Map::NerfCameraIsUpdated()
     unique_lock<mutex> lock(mMutexMap);
     return (mpTestbed->m_nerf.training.optimize_extrinsics) && (mpTestbed->m_nerf.training.n_steps_since_cam_update == 0);
 }
-
+/*
 void Map::GetCameraInfo(float *slice_plane_z, float *scale, float *fov, float *dof)
 {
     *slice_plane_z = mpTestbed->m_slice_plane_z;
@@ -317,7 +341,7 @@ void Map::GetCameraInfo(float *slice_plane_z, float *scale, float *fov, float *d
     *fov = mpTestbed->fov();
     *dof = mpTestbed->m_dof;
 }
-
+*/
 nlohmann::json Map::GetSceneConfig()
 {
     return m_scene_config;
@@ -328,9 +352,10 @@ void Map::CullEmptyRegion()
     unique_lock<mutex> lock(mMutexMap);
     std::cout << "Cull empty region (camera can't see) in density grid" << std::endl;
     // Mesh use inference stream
-    mpTestbed->cull_empty_region(false, mpTestbed->m_inference_stream);
+    mpTestbed->cull_empty_region(false, mpTestbed->m_stream.get());
 }
 
+/*
 void Map::SaveSnapShot(const string &filename)
 {
     unique_lock<mutex> lock(mMutexMap);
@@ -351,6 +376,7 @@ void Map::AddGroundTruthTraj(const std::string& gtTrajPath)
     unique_lock<mutex> lock(mMutexMap);
     mpTestbed->AddGroundTruthTraj(gtTrajPath);
 }
+*/
 
 void Map::AddMapPoint(MapPoint *pMP)
 {
@@ -434,7 +460,7 @@ long unsigned int Map::GetMaxKFid()
 void Map::clear()
 {
     mpTestbed->clear_training_data();
-    mpTestbed->load_nerfslam();
+    mpTestbed->load_nerfslam(filesystem::path());
 
     for(set<MapPoint*>::iterator sit=mspMapPoints.begin(), send=mspMapPoints.end(); sit!=send; sit++)
         delete *sit;

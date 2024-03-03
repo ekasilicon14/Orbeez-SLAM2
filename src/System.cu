@@ -471,6 +471,7 @@ void to_json(nlohmann::json& j, const SLAMCameraKeyFrame& p) {
 void to_json(nlohmann::json& j, const Trajectory& p) {
     j = nlohmann::json{{"timestamp", p.timestamp}, {"quat", p.quat}, {"t", p.t}};
 }
+/*
 
 void System::SaveKeyFrameTrajectoryNGP(const string &filename)
 {
@@ -503,22 +504,20 @@ void System::SaveKeyFrameTrajectoryNGP(const string &filename)
         if(pKF->isBad())
             continue;
 
-        /*
-        cv::Mat R = pKF->GetRotation().t();
-        vector<float> q = Converter::toQuaternion(R);
+        // cv::Mat R = pKF->GetRotation().t();
+        // vector<float> q = Converter::toQuaternion(R);
 
-        // quat: x y z w
-        Eigen::Vector4f quat(q.data());
-        Eigen::Vector3f trans;
-        cv::cv2eigen(pKF->GetCameraCenter(), trans);
+        // // quat: x y z w
+        // Eigen::Vector4f quat(q.data());
+        // Eigen::Vector3f trans;
+        // cv::cv2eigen(pKF->GetCameraCenter(), trans);
 
-        Eigen::Vector3f scaled_trans = trans * scale + offset;
+        // Eigen::Vector3f scaled_trans = trans * scale + offset;
 
-        float slice_plane_z, scale, fov, dof;
-        mpMap->GetCameraInfo(&slice_plane_z, &scale, &fov, &dof);
-        path.push_back(SLAMCameraKeyFrame(quat, scaled_trans, slice_plane_z, scale, fov, dof));
-        trajectory.push_back(Trajectory(pKF->mTimeStamp, quat, trans));
-        */
+        // float slice_plane_z, scale, fov, dof;
+        // mpMap->GetCameraInfo(&slice_plane_z, &scale, &fov, &dof);
+        // path.push_back(SLAMCameraKeyFrame(quat, scaled_trans, slice_plane_z, scale, fov, dof));
+        // trajectory.push_back(Trajectory(pKF->mTimeStamp, quat, trans));
 
         Eigen::Matrix<float, 3, 4> xform = pKF->GetPoseWithPhotometric();
         Eigen::Matrix3f Rwc = xform.block(0,0,3,3);
@@ -566,7 +565,7 @@ void System::SaveMesh(const string &filename, uint32_t marching_cubes_res)
 
     cout << endl << "mesh saved!" << endl;
 }
-
+*/
 void System::SaveTrajectoryKITTI(const string &filename)
 {
     cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;
@@ -637,11 +636,11 @@ vector<cv::KeyPoint> System::GetTrackedKeyPointsUn()
     unique_lock<mutex> lock(mMutexState);
     return mTrackedKeyPointsUn;
 }
-
+/*
 void System::AddGroundTruthTraj(const std::string& gtTrajPath)
 {
     cout << "Show Ground Truth Traj in GUI" << endl;
     mpMap->AddGroundTruthTraj(gtTrajPath);
 }
-
+*/
 } //namespace ORBEEZ

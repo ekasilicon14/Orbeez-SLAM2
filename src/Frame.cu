@@ -96,8 +96,12 @@ Frame::Frame(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double
         cvtColor(imRectRight,imGrayRight,CV_BGRA2GRAY);
         mImColor = imRectLeft.clone();
     }
-    else{
-        throw std::runtime_error("channel must be 3 or 4");
+    else if(imRectRight.channels()==1){
+        imGrayLeft = imRectLeft.clone();
+        imGrayRight = imRectRight.clone();
+        mImColor = imRectLeft.clone();
+    }else{
+        throw std::runtime_error("channel must be 3 or 4 or 1");
     }
 
     // Frame ID
@@ -176,8 +180,11 @@ Frame::Frame(const cv::Mat &imColor, const cv::Mat &imD, const float DepthMapFac
         cvtColor(imColor,imGray,CV_BGRA2GRAY);
         mImColor = imColor.clone();
     }
-    else{
-        throw std::runtime_error("channel must be 3 or 4");
+    else if(imColor.channels()==1){
+        imGray = imColor.clone();
+        mImColor = imColor.clone();
+    }else{
+        throw std::runtime_error("channel must be 3 or 4 or 1");
     }
 
 
@@ -251,8 +258,11 @@ Frame::Frame(const cv::Mat &im, const double &timeStamp, ORBextractor* extractor
         cvtColor(im,imGray,CV_BGRA2GRAY);
         mImColor = im.clone();
     }
-    else{
-        throw std::runtime_error("channel must be 3 or 4");
+    else if(im.channels()==1){
+        imGray = im.clone();
+        mImColor = im.clone();
+    }else{
+        throw std::runtime_error("channel must be 3 or 4 or 1");
     }
 
     // Frame ID

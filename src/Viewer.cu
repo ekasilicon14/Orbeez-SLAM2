@@ -29,6 +29,7 @@
 #include "MapDrawer.h"
 #include "System.h"
 #include <Eigen/Dense>
+#include <unistd.h>
 
 namespace ORBEEZ
 {

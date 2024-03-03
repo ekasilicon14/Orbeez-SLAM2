@@ -144,13 +144,13 @@ public:
 
     // Save camera trajectory in JSON format.
     // Provide infomation for rendering video in instant-ngp
-    void SaveKeyFrameTrajectoryNGP(const string &filename);
+    // void SaveKeyFrameTrajectoryNGP(const string &filename);
 
     // Save the snapshot of NeRF
-    void SaveSnapShot(const string &filename);    
+    // void SaveSnapShot(const string &filename);    
 
     // Save the mesh from NeRF
-    void SaveMesh(const string &filename, uint32_t marching_cubes_res = 256);
+    // void SaveMesh(const string &filename, uint32_t marching_cubes_res = 256);
 
     // TODO: Save/Load functions
     // SaveMap(const string &filename);
@@ -163,7 +163,7 @@ public:
     std::vector<cv::KeyPoint> GetTrackedKeyPointsUn();
 
     // Add GT traj in GUI
-    void AddGroundTruthTraj(const std::string& gtTrajPath);
+    // void AddGroundTruthTraj(const std::string& gtTrajPath);
 
 private:
 

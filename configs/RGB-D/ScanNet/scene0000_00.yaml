@@ -59,6 +59,6 @@ NeRF:
   aabb_scale: 4
   scale: 0.1
   offset: [0.5, 0.5, 0.5]
-  network_config_path: "./Thirdparty/instant-ngp-kf/configs/nerf/base.json"
+  network_config_path: "./instant-ngp-kf2/configs/nerf/base.json"
 
 

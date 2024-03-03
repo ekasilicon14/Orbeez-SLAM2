@@ -137,8 +137,8 @@ int main(int argc, char **argv)
     // Save camera trajectory
     SLAM.SaveTrajectoryTUM("evaluation/RGBD_TUM_"+dataset_name+"_CameraTrajectory.txt");
     SLAM.SaveKeyFrameTrajectoryTUM(trajString+".txt");  // rpj only
-    SLAM.SaveKeyFrameTrajectoryNGP(trajString+".json"); // rpj (+ pht if train extrinsics) 
-    SLAM.SaveSnapShot(snapString);
+    // SLAM.SaveKeyFrameTrajectoryNGP(trajString+".json"); // rpj (+ pht if train extrinsics) 
+    // SLAM.SaveSnapShot(snapString);
 
     int pid = fork();
     if (pid < 0)
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
     wait(NULL);
 
 #ifdef ORBEEZ_GUI
-    SLAM.AddGroundTruthTraj(gtJsonTrajString);
+    // SLAM.AddGroundTruthTraj(gtJsonTrajString);
 
     cout << "Press ctrl + c to exit the program " << endl;
 

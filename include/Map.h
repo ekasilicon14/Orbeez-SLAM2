@@ -47,12 +47,12 @@ public:
     bool frame();
     void update_transformsGPU();
     bool NerfCameraIsUpdated();
-    Eigen::Matrix<float, 3, 4> KeyFrameWorldPoseToNGPFormat(const Eigen::Matrix<float, 3, 4>& slam_matrix) const;
-    Eigen::Matrix<float, 3, 4> KeyFrameNGPFormatToWorldPose(const Eigen::Matrix<float, 3, 4>& ngp_matrix) const;
-    Eigen::Matrix<float, 3, 4> PoseWithPhotometric(int index) const;
+    tcnn::mat4x3 KeyFrameWorldPoseToNGPFormat(const tcnn::mat4x3& slam_matrix) const;
+    // Eigen::Matrix<float, 3, 4> KeyFrameNGPFormatToWorldPose(const Eigen::Matrix<float, 3, 4>& ngp_matrix) const;
+    // Eigen::Matrix<float, 3, 4> PoseWithPhotometric(int index) const;
     // void UpdatePosteriorWithNNOptimizer();
     void AddKeyFrame(KeyFrame* pKF);
-    void GetCameraInfo(float *slice_plane_z, float *scale, float *fov, float *dof);
+    // void GetCameraInfo(float *slice_plane_z, float *scale, float *fov, float *dof);
     void AddMapPoint(MapPoint* pMP);
     void EraseMapPoint(MapPoint* pMP);
     void EraseKeyFrame(KeyFrame* pKF);
@@ -66,9 +66,9 @@ public:
 
     nlohmann::json GetSceneConfig();
     void CullEmptyRegion();
-    void SaveSnapShot(const string &filename);
-    void SaveMesh(const string &filename, uint32_t marching_cubes_res);  
-    void AddGroundTruthTraj(const std::string& gtTrajPath);
+    // void SaveSnapShot(const string &filename);
+    // void SaveMesh(const string &filename, uint32_t marching_cubes_res);  
+    // void AddGroundTruthTraj(const std::string& gtTrajPath);
 
     long unsigned int MapPointsInMap();
     long unsigned  KeyFramesInMap();
@@ -88,6 +88,7 @@ protected:
     // cv::FileNode fSettingsLoadCheck(cv::FileStorage& fSettings, const string& key);
     // cv::FileNode KeyCheck(cv::FileNode& parent_node, const string& key);
 
+    int count = 0;
     std::set<MapPoint*> mspMapPoints;
     std::set<KeyFrame*> mspKeyFrames;
     std::map<int, KeyFrame*> mId2KeyFrame;

@@ -100,24 +100,25 @@ void KeyFrame::SetPose(const cv::Mat &Tcw_)
     if (mpNerfXform){
         for (int m = 0; m < 3; ++m) {
             for (int n = 0; n < 4; ++n) {
-                mpNerfXform->start(m, n) = Twc.at<float>(m,n);
-                mpNerfXform->end(m, n)   = Twc.at<float>(m,n);
+                mpNerfXform->start[n][m] = Twc.at<float>(m,n);
+                mpNerfXform->end[n][m]   = Twc.at<float>(m,n);
             }
         }
 
         // This update the CPU poses in NGP dataset. Call mpMap->update_transformsGPU to update GPU poses in NGP from CPU.
-        mpNerfXform->start = mpMap->KeyFrameWorldPoseToNGPFormat(mpNerfXform->start);
-        mpNerfXform->end   = mpMap->KeyFrameWorldPoseToNGPFormat(mpNerfXform->end);
+        // mpNerfXform->start = mpMap->KeyFrameWorldPoseToNGPFormat(mpNerfXform->start);
+        // mpNerfXform->end   = mpMap->KeyFrameWorldPoseToNGPFormat(mpNerfXform->end);
     }
 }
 
-void KeyFrame::SetNerfXformPointer(ngp::TrainingXForm *pXform, int index)
+void KeyFrame::SetNerfXformPointer(std::shared_ptr<ngp::TrainingXForm> pXform, int index)
 {
     unique_lock<mutex> lock(mMutexPose);
     mpNerfXform = pXform;
     mpNerfIndex = index;
 }
 
+/*
 Eigen::Matrix<float, 3, 4> KeyFrame::GetPoseWithPhotometric()
 {
     unique_lock<mutex> lock(mMutexPose);
@@ -167,6 +168,7 @@ Eigen::Matrix<float, 3, 4> KeyFrame::GetPoseWithPhotometric()
 //     cv::Mat center = (cv::Mat_<float>(4,1) << mHalfBaseline, 0 , 0, 1);
 //     Cw = Twc*center;
 // }
+*/
 
 cv::Mat KeyFrame::GetPose()
 {

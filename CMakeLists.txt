@@ -110,15 +110,14 @@ set(G2O_LIBRARIES
 # ###############
 # instant-ngp #
 # ###############
-add_subdirectory(Thirdparty/instant-ngp-kf)
+add_subdirectory(instant-ngp-kf2)
 
-list(APPEND IncludeList "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/instant-ngp-kf/include")
-list(APPEND IncludeList "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/instant-ngp-kf/src")
+list(APPEND IncludeList "${CMAKE_CURRENT_SOURCE_DIR}/instant-ngp-kf2/include")
 
 # ##############################################################################
 # Packages
 # ##############################################################################
-find_package(OpenCV 4 PATHS "/usr/include" "${CMAKE_SOURCE_DIR}/Thirdparty/opencv-4.5.5/build")
+find_package(OpenCV 4 PATHS "/usr/include" "${CMAKE_SOURCE_DIR}/Thirdparty/opencv-4.6.0/build")
 
 if(NOT OpenCV_FOUND)
     find_package(OpenCV 2.4.3 QUIET)
@@ -217,8 +216,8 @@ target_link_libraries(ORBEEZ PUBLIC
 target_include_directories(ORBEEZ PUBLIC
     ${IncludeList}
     ${PROJECT_BINARY_DIR}
-    ${PROJECT_BINARY_DIR}/Thirdparty/instant-ngp-kf/
-    build/Thirdparty/instant-ngp-kf/
+    ${PROJECT_BINARY_DIR}/instant-ngp-kf2/
+    build/instant-ngp-kf2/
 )
 
 
@@ -226,28 +225,6 @@ set_target_properties(ORBEEZ PROPERTIES CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 set_target_properties(ORBEEZ PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 target_compile_options(ORBEEZ PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:${CUDA_NVCC_FLAGS}>)
 target_compile_definitions(ORBEEZ PUBLIC ${ORBEEZ_DEFINITIONS})
-
-if(Python_FOUND)
-    add_library(pyngp SHARED ThirdParty/instant-ngp-kf/src/python_api.cu)
-    set_target_properties(pyngp PROPERTIES CXX_VISIBILITY_PRESET "hidden")
-    set_target_properties(pyngp PROPERTIES CUDA_VISIBILITY_PRESET "hidden")
-    target_link_libraries(pyngp PUBLIC ngp ${PYTHON_LIBRARIES} pybind11::module)
-    target_compile_options(pyngp PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:${CUDA_NVCC_FLAGS}>)
-    target_compile_definitions(pyngp PUBLIC -DNGP_PYTHON ${NGP_DEFINITIONS} ${TCNN_DEFINITIONS})
-    pybind11_extension(pyngp)
-
-    if(MSVC)
-        # Copy dlls needed at runtime
-        file(GLOB CUBLAS_DLLS "${CUDA_COMPILER_BIN}/cublas*.dll")
-
-        if(CUBLAS_DLLS)
-            add_custom_command(TARGET pyngp POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${CUBLAS_DLLS} $<TARGET_FILE_DIR:pyngp>
-                COMMAND_EXPAND_LISTS
-            )
-        endif()
-    endif()
-endif()
 
 message(STATUS "ORBEEZ_BUILD_WITH_GUI:" ${ORBEEZ_BUILD_WITH_GUI})
 message(STATUS "ORBEEZ_DEFINITIONS:" ${ORBEEZ_DEFINITIONS})
