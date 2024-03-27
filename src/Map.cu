@@ -61,6 +61,7 @@ namespace ORBEEZ
 
 Map::Map(const string &strSettingPath, const string &strSlamTransform, const bool bTrainCameraWithPhotometric):mnMaxKFid(0), mnBigChangeIdx(0), mbDataIsReady(false)
 {
+    unique_lock<mutex> lock(mMutexMap);
     mpTestbed = std::make_shared<ngp::Testbed>(ngp::ETestbedMode::NerfSLAM);
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
 
@@ -326,6 +327,7 @@ void Map::update_transformsGPU()
 {
     unique_lock<mutex> lock(mMutexMap);
     mpTestbed->update_camera(mpTestbed->m_stream.get());
+    CUDA_CHECK_THROW(cudaStreamSynchronize(mpTestbed->m_stream.get()));
 }
 
 bool Map::NerfCameraIsUpdated()
@@ -353,6 +355,7 @@ void Map::CullEmptyRegion()
     std::cout << "Cull empty region (camera can't see) in density grid" << std::endl;
     // Mesh use inference stream
     mpTestbed->cull_empty_region(false, mpTestbed->m_stream.get());
+    CUDA_CHECK_THROW(cudaStreamSynchronize(mpTestbed->m_stream.get()));
 }
 
 /*

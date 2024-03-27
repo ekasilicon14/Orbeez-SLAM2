@@ -153,7 +153,7 @@ protected:
     bool mbFixScale;
 
 
-    bool mnFullBAIdx;
+    int mnFullBAIdx;
 };
 
 } //namespace ORBEEZ

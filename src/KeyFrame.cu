@@ -111,7 +111,7 @@ void KeyFrame::SetPose(const cv::Mat &Tcw_)
     }
 }
 
-void KeyFrame::SetNerfXformPointer(std::shared_ptr<ngp::TrainingXForm> pXform, int index)
+void KeyFrame::SetNerfXformPointer(ngp::TrainingXForm* pXform, int index)
 {
     unique_lock<mutex> lock(mMutexPose);
     mpNerfXform = pXform;

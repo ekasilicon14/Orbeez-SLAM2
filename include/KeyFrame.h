@@ -53,7 +53,7 @@ public:
 
     // Pose functions
     void SetPose(const cv::Mat &Tcw);
-    void SetNerfXformPointer(std::shared_ptr<ngp::TrainingXForm>pXform, int index);
+    void SetNerfXformPointer(ngp::TrainingXForm* pXform, int index);
     // Eigen::Matrix<float, 3, 4> GetPoseWithPhotometric();
     // void UpdateNerfPose();
     // void UpdatePoseFromNerfPhotometricError();
@@ -214,7 +214,7 @@ protected:
     cv::Mat Tcw;
     cv::Mat Twc;
     cv::Mat Ow;
-    std::shared_ptr<ngp::TrainingXForm> mpNerfXform;
+    ngp::TrainingXForm* mpNerfXform;
     int mpNerfIndex;
 
     cv::Mat Cw; // Stereo middel point. Only for visualization
